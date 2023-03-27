@@ -1,15 +1,19 @@
 package com.anavarro.usercreationapi.controller;
 
 import com.anavarro.usercreationapi.dto.UserDto;
-import com.anavarro.usercreationapi.persistence.entities.Users;
+import com.anavarro.usercreationapi.persistence.entities.User;
 import com.anavarro.usercreationapi.services.UserService;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+import org.springframework.web.util.UriBuilder;
+
+import javax.validation.Valid;
+import java.net.URI;
 
 @RestController
 @ComponentScan(basePackages = "com.anavarro.usercreationapi")
-@RequestMapping("/api")
+@RequestMapping("/user")
 public class UserController {
 
     public final UserService userService;
@@ -18,14 +22,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/create")
-    public Users createUsers(@RequestBody UserDto userDto){
-        return this.userService.createUser(userDto);
+    @PostMapping
+    public ResponseEntity createUsers(@RequestBody @Valid UserDto userDto){
+        User userCreated = this.userService.createUser(userDto);
+        return ResponseEntity.created(URI.create("/" + userCreated.getId())).body(userCreated);
     }
 
-    @GetMapping("/email/{email}")
-    public List<Users> findByEmail(@PathVariable("email") Users users){
-        return this.userService.findByEmail(users);
+    @GetMapping("/{email}")
+    public UserDto findByEmail(@PathVariable("email") String email){
+        return this.userService.findByEmail(email);
     }
 }
 
